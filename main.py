@@ -2,17 +2,13 @@ from fastapi import FastAPI
 import requests
 from bs4 import BeautifulSoup
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI()
 
-origins = [
-  "http://localhost:3000",
-  "https://hashnode-cards.herokuapp.com"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,12 +45,18 @@ def get_blog_handle(username):
   user_data = request.json()
   if(user_data['data']):
     return user_data['data']['user']['blogHandle']
-  
+
+class UsernameBody(BaseModel):
+  username: str
 
 @app.post('/')
-def index(username: str):
-  blog_handle = get_blog_handle(username)
+def index(body: UsernameBody):
+  blog_handle = get_blog_handle(body.username)
   if(blog_handle != None):
     return scrap_data(blog_handle)
   else:
     return {"error": "Username doesn't exists."}
+
+@app.get('/')
+def getIndex():
+  return "Go to /docs."

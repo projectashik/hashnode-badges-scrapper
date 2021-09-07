@@ -5,7 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 app = FastAPI()
-
+origins = [
+    "http://localhost:3000",
+    "localhost:3000"
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,19 +19,43 @@ app.add_middleware(
 
 def scrap_data(blog_handle):
   badges = []
+  print("Scraping Data for " + blog_handle)
   hashnode_url = "https://" + blog_handle + ".hashnode.dev/badges"
   request = requests.get(hashnode_url)
   soup = BeautifulSoup(request.content, 'html.parser')
   badges_wrapper = soup.find_all('div', {'class':"css-1hzbns5"})
+  # print(badges_wrapper)
   for badge in badges_wrapper:
-    img = badge.find('img')
     name = badge.find('h1', {'class': "css-1h3au74"}).text
+    # print(name)
+    # print("\n")
+    img = badge.find('img', {'alt': name})
+    svg = badge.find('svg')
+
+    def returnLogo():
+      if(img):
+        return img['src']
+      else:
+        return str(svg)
+    # print(returnLogo())
+    # print("\n")
+
+    def checktype():
+      if(img):
+        return 'img'
+      else:
+        return 'svg'
+    # print(checktype())
+    # print("\n")
     badge_detail = {
-      'logo': img['src'],
-      'name': name
+      'logo': returnLogo(),
+      'name': name,
+      'type': checktype()
     }
+    # print(badge_detail)
+    # print("\n")
     badges.append(badge_detail)
-  
+  print(badges)
   return badges
 
 def get_blog_handle(username):

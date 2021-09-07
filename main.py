@@ -56,7 +56,9 @@ def scrap_data(blog_handle):
     # print("\n")
     badges.append(badge_detail)
   print(badges)
-  return badges
+  return {
+    "badges": badges
+  }
 
 def get_blog_handle(username):
   hashnode_query = """query($username: String!) {

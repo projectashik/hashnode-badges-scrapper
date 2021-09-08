@@ -17,6 +17,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def scrap_url(username):
+  print("Scraping url for " + username)
+  hashnode_url = "https://hashnode.com/@"+ username
+  request = requests.get(hashnode_url)
+  soup = BeautifulSoup(request.content, 'html.parser')
+  url = soup.find("a", {'class': "block mb-3 text-xl font-bold truncate text-brand-grey-800 dark:text-brand-grey-100"})
+  return url.string
+
 def scrap_data(blog_handle):
   badges = []
   print("Scraping Data for " + blog_handle)
@@ -55,10 +63,8 @@ def scrap_data(blog_handle):
     # print(badge_detail)
     # print("\n")
     badges.append(badge_detail)
-  print(badges)
-  return {
-    "badges": badges
-  }
+
+  return badges
 
 def get_blog_handle(username):
   hashnode_query = """query($username: String!) {
@@ -82,7 +88,10 @@ class UsernameBody(BaseModel):
 def index(body: UsernameBody):
   blog_handle = get_blog_handle(body.username)
   if(blog_handle != None):
-    return scrap_data(blog_handle)
+    return {
+      'domain': scrap_url(body.username),
+      'badges': scrap_data(blog_handle)
+    }
   else:
     return {"error": "Username doesn't exists."}
 

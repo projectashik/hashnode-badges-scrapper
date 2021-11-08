@@ -35,9 +35,9 @@ def scrap_data(blog_handle):
   # print(badges_wrapper)
   for badge in badges_wrapper:
     name = badge.find('h1', {'class': "css-1h3au74"}).text
-    # print(name)
-    # print("\n")
-    img = badge.find('img', {'alt': name})
+    # imgs = badge.find_all('img', {'alt': name})
+    print(name)
+    img = badge.find('img', {'alt': name, 'loading': 'lazy'})
     svg = badge.find('svg')
 
     def returnLogo():
